@@ -1,21 +1,28 @@
-resource "google_compute_instance" "default" {
-  name         = "test"
-  machine_type = "e2-small"
-  zone         = "asia-south1-a"
+provider "google" {
+  project = "carbide-algebra-355014"
+  region  = "us-central1"
+  zone    = "us-central1-c"
+}
 
-  tags = ["first-tf-cloud"]
+resource "google_compute_instance" "vm_instance" {
+  name         = "terraform-instance"
+  machine_type = "e2-micro"
 
   boot_disk {
     initialize_params {
       image = "debian-cloud/debian-11"
     }
   }
-  
-  network_interface {
-    network = "default"
 
+  network_interface {
+    # A default network is created for all GCP projects
+    network = google_compute_network.vpc_network.self_link
     access_config {
-      // Ephemeral public IP
     }
   }
+}
+
+resource "google_compute_network" "vpc_network" {
+  name                    = "terraform-network"
+  auto_create_subnetworks = "true"
 }
